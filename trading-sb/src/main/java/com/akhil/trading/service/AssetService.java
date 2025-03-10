@@ -2,12 +2,11 @@ package com.akhil.trading.service;
 
 import com.akhil.trading.model.Asset;
 import com.akhil.trading.model.Coin;
-import com.akhil.trading.model.User;
 
 import java.util.List;
 
 public interface AssetService {
-    void createAsset(User user, Coin coin, double quantity);
+    void createAsset(Long userId, Coin coin, double quantity);
 
     Asset getAssetById(Long assetId);
 

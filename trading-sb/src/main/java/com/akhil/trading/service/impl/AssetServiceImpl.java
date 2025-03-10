@@ -3,7 +3,6 @@ package com.akhil.trading.service.impl;
 import com.akhil.trading.exception.ResourceNotFoundException;
 import com.akhil.trading.model.Asset;
 import com.akhil.trading.model.Coin;
-import com.akhil.trading.model.User;
 import com.akhil.trading.repo.AssetRepo;
 import com.akhil.trading.service.AssetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +16,9 @@ public class AssetServiceImpl implements AssetService {
     @Autowired
     private AssetRepo assetRepo;
     @Override
-    public void createAsset(User user, Coin coin, double quantity) {
+    public void createAsset(Long userIf, Coin coin, double quantity) {
         Asset asset=new Asset();
-        asset.setUserId(user.getId());
+        asset.setUserId(userIf);
         asset.setCoinId(coin.getId());
         asset.setQuantity(quantity);
         asset.setBuyPrice(BigDecimal.valueOf(coin.getCurrentPrice()));
