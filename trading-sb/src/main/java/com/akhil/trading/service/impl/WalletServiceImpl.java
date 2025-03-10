@@ -17,24 +17,24 @@ import java.math.BigDecimal;
 public class WalletServiceImpl implements WalletService {
     @Autowired
     private WalletRepo walletRepo;
-    private Wallet generateWallet(User user){
+    private Wallet generateWallet(Long userId){
         Wallet wallet=new Wallet();
-        wallet.setUserId(user.getId());
+        wallet.setUserId(userId);
         return walletRepo.save(wallet);
     }
     @Override
-    public Wallet getUserWallet(User user) {
-        Wallet wallet=walletRepo.findByUserId(user.getId());
+    public Wallet getUserWallet(Long userId) {
+        Wallet wallet=walletRepo.findByUserId(userId);
         if (wallet!=null){
            return wallet;
         }
-        return generateWallet(user);
+        return generateWallet(userId);
     }
 
     @Override
-    public Wallet addBalance(Wallet wallet, BigDecimal money) {
+    public void addBalance(Wallet wallet, BigDecimal money) {
         wallet.setBalance(money.add(wallet.getBalance()));
-        return walletRepo.save(wallet);
+        walletRepo.save(wallet);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public Wallet walletToWalletTransfer(User sender, Wallet recieverWallet, BigDecimal amount) {
-        Wallet senderWallet=getUserWallet(sender);
+    public Wallet walletToWalletTransfer(Long senderId, Wallet recieverWallet, BigDecimal amount) {
+        Wallet senderWallet=getUserWallet(senderId);
         if(senderWallet.getBalance().compareTo(amount)<0){
             throw new InSufficientBalance("Insufficient balance...");
         }
@@ -55,8 +55,8 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public Wallet payOrderPayment(Order order, User user) {
-        Wallet wallet=getUserWallet(user);
+    public Wallet payOrderPayment(Order order, Long userId) {
+        Wallet wallet=getUserWallet(userId);
         BigDecimal newBalance;
         if(order.getOrderType().equals(OrderType.BUY)){
             newBalance = wallet.getBalance().subtract(order.getPrice());

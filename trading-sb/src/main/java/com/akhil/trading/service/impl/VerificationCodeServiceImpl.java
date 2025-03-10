@@ -15,11 +15,11 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     @Autowired
     private VerificationCodeRepo verificationCodeRepo;
     @Override
-    public VerificationCode sendVerificationCode(User user,VerificationType verificationType) {
+    public VerificationCode sendVerificationCode(Long userId,VerificationType verificationType) {
         VerificationCode verificationCode=new VerificationCode();
         verificationCode.setOtp(OtpUtils.generateOtp());
         verificationCode.setVerificationType(verificationType);
-        verificationCode.setUserId(user.getId());
+        verificationCode.setUserId(userId);
         return verificationCodeRepo.save(verificationCode);
     }
 

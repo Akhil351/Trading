@@ -2,6 +2,7 @@ package com.akhil.trading.service.impl;
 
 
 import com.akhil.trading.model.User;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-
+@Getter
 public class UserDetailsImpl implements UserDetails {
     private Long id;
     private String userName;
@@ -52,5 +53,6 @@ public class UserDetailsImpl implements UserDetails {
     public String getUsername() {
         return email;
     }
+
 
 }

@@ -33,10 +33,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private AssetService assetService;
     @Override
-    public Order createOrder(User user, OrderItem orderItem, OrderType orderType) {
+    public Order createOrder(Long userId, OrderItem orderItem, OrderType orderType) {
         BigDecimal price=BigDecimal.valueOf(coinService.findById(orderItem.getCoinId()).getCurrentPrice()*orderItem.getQuantity());
         Order order=new Order();
-        order.setUserId(user.getId());
+        order.setUserId(userId);
         order.setOrderItemId(orderItem.getId());
         order.setOrderType(orderType);
         order.setPrice(price);
@@ -65,22 +65,22 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public Order buyAsset(Coin coin,double quantity,User user){
+    public Order buyAsset(Coin coin,double quantity,Long userId){
         if(quantity<=0){
             throw new ApiException("quantity should be greater than zero");
         }
         BigDecimal buyPrice=BigDecimal.valueOf(coin.getCurrentPrice());
         OrderItem orderItem=createOrderItem(coin,quantity,buyPrice,BigDecimal.ZERO);
-        Order order=createOrder(user,orderItem,OrderType.BUY);
+        Order order=createOrder(userId,orderItem,OrderType.BUY);
         orderItem.setOrderId(order.getId());
         orderItemRepo.save(orderItem);
-        walletService.payOrderPayment(order,user);
+        walletService.payOrderPayment(order,userId);
         order.setStatus(OrderStatus.SUCCESS);
         Order saveOrder=orderRepo.save(order);
         // create asset
         Asset oldAsset=assetService.findAssetByUserIdAndCoinId(order.getUserId(),orderItem.getCoinId());
         if (oldAsset==null) {
-            assetService.createAsset(user, coin, orderItem.getQuantity());
+            assetService.createAsset(userId, coin, orderItem.getQuantity());
         } else{
             assetService.updateAsset(oldAsset.getId(),quantity);
         }
@@ -91,21 +91,21 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Transactional
-    public Order sellAsset(Coin coin,double quantity,User user){
+    public Order sellAsset(Coin coin,double quantity,Long userId){
         if(quantity<=0){
             throw new ApiException("quantity should be greater than zero");
         }
         BigDecimal sellPrice=BigDecimal.valueOf(coin.getCurrentPrice());
-        Asset assetToSell=assetService.findAssetByUserIdAndCoinId(user.getId(),coin.getId());
+        Asset assetToSell=assetService.findAssetByUserIdAndCoinId(userId,coin.getId());
         if (assetToSell!=null){
             OrderItem orderItem=createOrderItem(coin,quantity,assetToSell.getBuyPrice() ,sellPrice);
-            Order order=createOrder(user,orderItem,OrderType.SELL);
+            Order order=createOrder(userId,orderItem,OrderType.SELL);
             orderItem.setOrderId(order.getId());
             orderItemRepo.save(orderItem);
             if(assetToSell.getQuantity()>=quantity){
                 order.setStatus(OrderStatus.SUCCESS);
                 Order saveOrder=orderRepo.save(order);
-                walletService.payOrderPayment(order,user);
+                walletService.payOrderPayment(order,userId);
                 Asset updatedAsset=assetService.updateAsset(assetToSell.getId(),-quantity);
                 if(updatedAsset.getQuantity()*coin.getCurrentPrice()<=1){
                     assetService.deleteAsset(updatedAsset.getId());
@@ -127,11 +127,11 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order processOrder(Coin coin, double quantity, OrderType orderType, User user) {
+    public Order processOrder(Coin coin, double quantity, OrderType orderType, Long userId) {
         if(orderType.equals(OrderType.BUY)){
-            return buyAsset(coin,quantity,user);
+            return buyAsset(coin,quantity,userId);
         } else if(orderType.equals(OrderType.SELL)){
-            return sellAsset(coin,quantity,user);
+            return sellAsset(coin,quantity,userId);
         }
         throw new ApiException("invalid order type");
     }

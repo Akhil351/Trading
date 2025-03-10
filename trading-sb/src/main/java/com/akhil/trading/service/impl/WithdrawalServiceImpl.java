@@ -2,7 +2,6 @@ package com.akhil.trading.service.impl;
 
 import com.akhil.trading.domain.WithdrawalStatus;
 import com.akhil.trading.exception.ResourceNotFoundException;
-import com.akhil.trading.model.User;
 import com.akhil.trading.model.Withdrawal;
 import com.akhil.trading.repo.WithdrawalRepo;
 import com.akhil.trading.service.WithdrawalService;
@@ -18,10 +17,10 @@ public class WithdrawalServiceImpl implements WithdrawalService {
     @Autowired
     private WithdrawalRepo withdrawalRepo;
     @Override
-    public Withdrawal requestWithdrawal(BigDecimal amount, User user) {
+    public Withdrawal requestWithdrawal(BigDecimal amount, Long userId) {
         Withdrawal withdrawal=new Withdrawal();
         withdrawal.setAmount(amount);
-        withdrawal.setUserId(user.getId());
+        withdrawal.setUserId(userId);
         withdrawal.setWithdrawalStatus(WithdrawalStatus.PENDING);
         return withdrawalRepo.save(withdrawal);
     }
@@ -36,8 +35,8 @@ public class WithdrawalServiceImpl implements WithdrawalService {
     }
 
     @Override
-    public List<Withdrawal> getUsersWithdrawalHistory(User user) {
-        return withdrawalRepo.findByUserId(user.getId());
+    public List<Withdrawal> getUsersWithdrawalHistory(Long userId) {
+        return withdrawalRepo.findByUserId(userId);
     }
 
     @Override

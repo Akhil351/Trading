@@ -36,7 +36,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User enableTwoFactorAuthentication(VerificationType verificationType,String sendTo,User user) {
+    public User enableTwoFactorAuthentication(VerificationType verificationType,String sendTo,Long userId) {
+        User user=findUserById(userId);
         TwoFactorAuth twoFactorAuth=new TwoFactorAuth();
         twoFactorAuth.setEnabled(true);
         twoFactorAuth.setSendTo(verificationType);

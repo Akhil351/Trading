@@ -5,6 +5,7 @@ import com.akhil.trading.domain.VerificationType;
 import com.akhil.trading.exception.InvalidOtpException;
 import com.akhil.trading.model.ForgotPasswordToken;
 import com.akhil.trading.model.User;
+import com.akhil.trading.model.UserContext;
 import com.akhil.trading.model.VerificationCode;
 import com.akhil.trading.request.ForgotPasswordTokenRequest;
 import com.akhil.trading.request.ResetPasswordRequest;
@@ -18,7 +19,14 @@ import com.akhil.trading.utils.OtpUtils;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.UUID;
 
@@ -36,6 +44,9 @@ public class UserController {
     @Autowired
     private ForgotPasswordService forgotPasswordService;
 
+    @Autowired
+    private UserContext userContext;
+
     @GetMapping("/api/users/profile")
     public ResponseEntity<Response> getUserProfile(@RequestHeader(JwtConstant.JWT_HEADER) String jwt){
         User user=userService.findUserProfileByJwt(jwt);
@@ -43,32 +54,28 @@ public class UserController {
     }
 
     @PostMapping("/api/users/verification/{verificationType}/send-otp")
-    public ResponseEntity<Response> sendVerificationOtp(@RequestHeader(JwtConstant.JWT_HEADER) String jwt,
-                                                        @PathVariable VerificationType verificationType) throws MessagingException {
-        User user=userService.findUserProfileByJwt(jwt);
-        VerificationCode verificationCode=verificationCodeService.getVerificationCodeByUser(user.getId());
+    public ResponseEntity<Response> sendVerificationOtp(@PathVariable VerificationType verificationType) throws MessagingException {
+        VerificationCode verificationCode=verificationCodeService.getVerificationCodeByUser(userContext.getId());
         if(verificationCode==null){
-            verificationCode=verificationCodeService.sendVerificationCode(user,verificationType);
+            verificationCode=verificationCodeService.sendVerificationCode(userContext.getId(),verificationType);
         }
         if(verificationType.equals(VerificationType.EMAIL)){
-            emailService.sendVerificationOtpEmail(user.getEmail(),verificationCode.getOtp());
+            emailService.sendVerificationOtpEmail(userContext.getEmail(),verificationCode.getOtp());
         }
         return ResponseEntity.ok(Response.builder().data("verification otp send successfully").build());
 
     }
 
     @PatchMapping("/api/users/enable-two-factor/verify-otp/{otp}")
-    public ResponseEntity<Response> enableTwoFactorAuthentication(@RequestHeader(JwtConstant.JWT_HEADER) String jwt
-    ,@PathVariable String otp){
-        User user=userService.findUserProfileByJwt(jwt);
-        VerificationCode verificationCode=verificationCodeService.getVerificationCodeByUser(user.getId());
+    public ResponseEntity<Response> enableTwoFactorAuthentication(@PathVariable String otp){
+        VerificationCode verificationCode=verificationCodeService.getVerificationCodeByUser(userContext.getId());
         String sendTo=verificationCode.getVerificationType().equals(VerificationType.EMAIL)?
                 verificationCode.getEmail():verificationCode.getMobile();
         boolean isVerified=verificationCode.getOtp().equals(otp);
         if(isVerified){
-            User updatedUser=userService.enableTwoFactorAuthentication(verificationCode.getVerificationType(),sendTo,user);
+            User updatedUser=userService.enableTwoFactorAuthentication(verificationCode.getVerificationType(),sendTo, userContext.getId());
             verificationCodeService.deleteVerificationCodeById(verificationCode);
-            return ResponseEntity.ok(Response.builder().data(user).build());
+            return ResponseEntity.ok(Response.builder().data(updatedUser).build());
         }
         throw new InvalidOtpException("invalid otp");
     }

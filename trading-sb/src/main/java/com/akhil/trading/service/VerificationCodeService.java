@@ -5,7 +5,7 @@ import com.akhil.trading.model.User;
 import com.akhil.trading.model.VerificationCode;
 
 public interface VerificationCodeService {
-    VerificationCode sendVerificationCode(User user, VerificationType verificationType);
+    VerificationCode sendVerificationCode(Long userId, VerificationType verificationType);
     VerificationCode getVerificationCodeById(Long id);
     VerificationCode getVerificationCodeByUser(Long userId);
     void deleteVerificationCodeById(VerificationCode verificationCode);

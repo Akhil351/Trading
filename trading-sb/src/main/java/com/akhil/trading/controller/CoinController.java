@@ -9,7 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -40,7 +44,6 @@ public class CoinController {
     ResponseEntity<Response> searchCoin(@RequestParam("q") String keyword) throws JsonProcessingException {
         String coin=coinService.searchCoin(keyword);
         JsonNode jsonNode = objectMapper.readTree(coin);
-
         return ResponseEntity.ok(Response.builder().data(jsonNode).build());
 
     }
@@ -48,7 +51,6 @@ public class CoinController {
     ResponseEntity<Response> getTop50CoinByMarketCapRank() throws JsonProcessingException {
         String coin=coinService.getTop50CoinByMarketCapRank();
         JsonNode jsonNode = objectMapper.readTree(coin);
-
         return ResponseEntity.ok(Response.builder().data(jsonNode).build());
 
     }
@@ -65,7 +67,6 @@ public class CoinController {
     ResponseEntity<Response> getCoinDetails(@PathVariable String coinId) throws JsonProcessingException {
         String coin=coinService.getCoinDetails(coinId);
         JsonNode jsonNode = objectMapper.readTree(coin);
-
         return ResponseEntity.ok(Response.builder().data(jsonNode).build());
 
     }
