@@ -35,7 +35,7 @@ public class CoinServiceImpl implements CoinService {
         try {
             String responseBody = webClient.get()
                     .uri(url)
-                    .header("x-cg-demo-api-key", API_KEY)
+                    //.header("x-cg-demo-api-key", API_KEY)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block(); // Blocking call, replace with async processing if needed
@@ -51,7 +51,7 @@ public class CoinServiceImpl implements CoinService {
     public String getMarketChat(String coinId, int days) {
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://api.coingecko.com")
-                .defaultHeader("x-cg-demo-api-key", API_KEY)
+                //.defaultHeader("x-cg-demo-api-key", API_KEY)
                 .build();
 
         try {
@@ -71,7 +71,7 @@ public class CoinServiceImpl implements CoinService {
     public String getCoinDetails(String coinId) {
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://api.coingecko.com")
-                .defaultHeader("x-cg-demo-api-key", API_KEY)
+               // .defaultHeader("x-cg-demo-api-key", API_KEY)
                 .build();
 
         try {
@@ -122,7 +122,7 @@ public class CoinServiceImpl implements CoinService {
     public String searchCoin(String keyword) {
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://api.coingecko.com")
-                .defaultHeader("x-cg-demo-api-key", API_KEY)
+               // .defaultHeader("x-cg-demo-api-key", API_KEY)
                 .build();
 
         try {
@@ -143,7 +143,7 @@ public class CoinServiceImpl implements CoinService {
     public String getTop50CoinByMarketCapRank() {
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://api.coingecko.com")
-                .defaultHeader("x-cg-demo-api-key", API_KEY)
+                //.defaultHeader("x-cg-demo-api-key", API_KEY)
                 .build();
 
         try {
@@ -162,7 +162,7 @@ public class CoinServiceImpl implements CoinService {
     public String getTradingCoins() {
         WebClient webClient = WebClient.builder()
                 .baseUrl("https://api.coingecko.com")
-                .defaultHeader("x-cg-demo-api-key", API_KEY)
+              //  .defaultHeader("x-cg-demo-api-key", API_KEY)
                 .build();
 
         try {
