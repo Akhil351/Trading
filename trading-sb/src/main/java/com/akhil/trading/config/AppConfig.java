@@ -36,7 +36,7 @@ public class AppConfig {
     }
 
 
-    @Autowired
+    @Bean
     public UserContext userContext(){
         return new UserContext();
     }
