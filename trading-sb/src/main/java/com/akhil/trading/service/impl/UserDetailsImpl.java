@@ -13,16 +13,16 @@ import java.util.Collections;
 @Getter
 public class UserDetailsImpl implements UserDetails {
     private Long id;
-    private String userName;
+    private String fullName;
     private String email;
     private String password;
     private Collection<? extends GrantedAuthority> authorities;
     public UserDetailsImpl(){
 
     }
-    public UserDetailsImpl(Long id, String userName, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserDetailsImpl(Long id, String fullName, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
-        this.userName = userName;
+        this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.authorities = authorities;

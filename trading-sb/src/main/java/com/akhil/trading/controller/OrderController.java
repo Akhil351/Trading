@@ -10,7 +10,6 @@ import com.akhil.trading.request.CreateOrderRequest;
 import com.akhil.trading.response.Response;
 import com.akhil.trading.service.CoinService;
 import com.akhil.trading.service.OrderService;
-import com.akhil.trading.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,8 +30,6 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private CoinService coinService;
@@ -49,8 +46,6 @@ public class OrderController {
 
     ) throws Exception {
         Coin coin =coinService.findById(req.getCoinId());
-
-
         Order order = orderService.processOrder(coin,req.getQuantity(),req.getOrderType(), userContext.getId());
 
         return ResponseEntity.ok(Response.builder().data(order).build());

@@ -32,9 +32,9 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public void addBalance(Wallet wallet, BigDecimal money) {
+    public Wallet addBalance(Wallet wallet, BigDecimal money) {
         wallet.setBalance(money.add(wallet.getBalance()));
-        walletRepo.save(wallet);
+        return walletRepo.save(wallet);
     }
 
     @Override

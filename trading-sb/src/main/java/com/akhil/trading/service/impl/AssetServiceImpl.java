@@ -16,9 +16,9 @@ public class AssetServiceImpl implements AssetService {
     @Autowired
     private AssetRepo assetRepo;
     @Override
-    public void createAsset(Long userIf, Coin coin, double quantity) {
+    public void createAsset(Long userId, Coin coin, BigDecimal quantity) {
         Asset asset=new Asset();
-        asset.setUserId(userIf);
+        asset.setUserId(userId);
         asset.setCoinId(coin.getId());
         asset.setQuantity(quantity);
         asset.setBuyPrice(BigDecimal.valueOf(coin.getCurrentPrice()));
@@ -41,9 +41,9 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
-    public Asset updateAsset(Long assetId, double quantity) {
+    public Asset updateAsset(Long assetId, BigDecimal quantity) {
         Asset oldAsset=getAssetById(assetId);
-        oldAsset.setQuantity(oldAsset.getQuantity()+quantity);
+        oldAsset.setQuantity(oldAsset.getQuantity().add(quantity));
         return assetRepo.save(oldAsset);
     }
 

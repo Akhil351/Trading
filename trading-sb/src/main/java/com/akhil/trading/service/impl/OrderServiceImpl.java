@@ -34,7 +34,7 @@ public class OrderServiceImpl implements OrderService {
     private AssetService assetService;
     @Override
     public Order createOrder(Long userId, OrderItem orderItem, OrderType orderType) {
-        BigDecimal price=BigDecimal.valueOf(coinService.findById(orderItem.getCoinId()).getCurrentPrice()*orderItem.getQuantity());
+        BigDecimal price=orderItem.getQuantity().multiply(BigDecimal.valueOf(coinService.findById(orderItem.getCoinId()).getCurrentPrice()));
         Order order=new Order();
         order.setUserId(userId);
         order.setOrderItemId(orderItem.getId());
@@ -51,11 +51,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<Order> getAllOrderOfUser(Long userId, String orderType, String assetSymbol) {
+    public List<Order>  getAllOrderOfUser(Long userId, String orderType, String assetSymbol) {
         return orderRepo.findByUserId(userId);
     }
 
-    private OrderItem createOrderItem(Coin coin,double quantity,BigDecimal buyPrice,BigDecimal sellPrice){
+    private OrderItem createOrderItem(Coin coin,BigDecimal quantity,BigDecimal buyPrice,BigDecimal sellPrice){
         OrderItem orderItem=new OrderItem();
         orderItem.setCoinId(coin.getId());
         orderItem.setQuantity(quantity);
@@ -65,8 +65,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Transactional
-    public Order buyAsset(Coin coin,double quantity,Long userId){
-        if(quantity<=0){
+    public Order buyAsset(Coin coin,BigDecimal quantity,Long userId){
+        if(quantity.compareTo(BigDecimal.ZERO) <= 0){
             throw new ApiException("quantity should be greater than zero");
         }
         BigDecimal buyPrice=BigDecimal.valueOf(coin.getCurrentPrice());
@@ -91,8 +91,8 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Transactional
-    public Order sellAsset(Coin coin,double quantity,Long userId){
-        if(quantity<=0){
+    public Order sellAsset(Coin coin,BigDecimal quantity,Long userId){
+        if(quantity.compareTo(BigDecimal.ZERO) <= 0){
             throw new ApiException("quantity should be greater than zero");
         }
         BigDecimal sellPrice=BigDecimal.valueOf(coin.getCurrentPrice());
@@ -102,12 +102,12 @@ public class OrderServiceImpl implements OrderService {
             Order order=createOrder(userId,orderItem,OrderType.SELL);
             orderItem.setOrderId(order.getId());
             orderItemRepo.save(orderItem);
-            if(assetToSell.getQuantity()>=quantity){
+            if(assetToSell.getQuantity().compareTo(quantity) >= 0){
                 order.setStatus(OrderStatus.SUCCESS);
                 Order saveOrder=orderRepo.save(order);
                 walletService.payOrderPayment(order,userId);
-                Asset updatedAsset=assetService.updateAsset(assetToSell.getId(),-quantity);
-                if(updatedAsset.getQuantity()*coin.getCurrentPrice()<=1){
+                Asset updatedAsset=assetService.updateAsset(assetToSell.getId(),quantity.multiply(BigDecimal.valueOf(-1)));
+                if(updatedAsset.getQuantity().multiply(BigDecimal.valueOf(coin.getCurrentPrice())).compareTo(BigDecimal.ONE) <= 0){
                     assetService.deleteAsset(updatedAsset.getId());
                 }
                 return saveOrder;
@@ -127,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order processOrder(Coin coin, double quantity, OrderType orderType, Long userId) {
+    public Order processOrder(Coin coin, BigDecimal quantity, OrderType orderType, Long userId) {
         if(orderType.equals(OrderType.BUY)){
             return buyAsset(coin,quantity,userId);
         } else if(orderType.equals(OrderType.SELL)){

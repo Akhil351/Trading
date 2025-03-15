@@ -4,12 +4,14 @@ package com.akhil.trading.controller;
 
 
 
+import com.akhil.trading.domain.WalletTransactionType;
 import com.akhil.trading.model.UserContext;
 import com.akhil.trading.model.Wallet;
 import com.akhil.trading.model.Withdrawal;
 import com.akhil.trading.response.Response;
 import com.akhil.trading.service.UserService;
 import com.akhil.trading.service.WalletService;
+import com.akhil.trading.service.WalletTransactionService;
 import com.akhil.trading.service.WithdrawalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,9 @@ public class WithdrawalController {
     @Autowired
     private UserContext userContext;
 
+    @Autowired
+    private WalletTransactionService walletTransactionService;
+
 
 
     @PostMapping("/api/withdrawal/{amount}")
@@ -43,12 +48,12 @@ public class WithdrawalController {
         Withdrawal withdrawal=withdrawalService.requestWithdrawal(amount,userContext.getId());
         walletService.addBalance(userWallet, withdrawal.getAmount().multiply(BigDecimal.valueOf(-1)));
 
-//        WalletTransaction walletTransaction = walletTransactionService.createTransaction(
-//                userWallet,
-//                WalletTransactionType.WITHDRAWAL,null,
-//                "bank account withdrawal",
-//                withdrawal.getAmount()
-//        );
+        walletTransactionService.createTransaction(
+                userWallet,
+                WalletTransactionType.WITHDRAWAL,null,
+                "bank account withdrawal",
+                withdrawal.getAmount()
+        );
 
         return ResponseEntity.ok(Response.builder().data(withdrawal).build());
     }

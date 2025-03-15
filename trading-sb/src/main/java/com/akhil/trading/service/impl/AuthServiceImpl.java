@@ -1,6 +1,7 @@
 package com.akhil.trading.service.impl;
 
 
+ import com.akhil.trading.service.WatchListService;
 import com.akhil.trading.utils.JwtUtils;
 import com.akhil.trading.exception.DuplicateException;
 import com.akhil.trading.model.User;
@@ -30,6 +31,9 @@ public class AuthServiceImpl implements AuthService {
     private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
+    private WatchListService watchListService;
+
+    @Autowired
     private JwtUtils jwtUtils;
     @Override
     public String register(RegisterRequest request) {
@@ -40,7 +44,9 @@ public class AuthServiceImpl implements AuthService {
         newUser.setEmail(request.getEmail());
         newUser.setPassword(passwordEncoder.encode(request.getPassword()));
         newUser.setFullName(request.getFullName());
-        userRepo.save(newUser);
+        newUser.setMobile(request.getMobile());
+        User savedUser=userRepo.save(newUser);
+        watchListService.createWatchList(savedUser.getId());
         Authentication authentication=new UsernamePasswordAuthenticationToken(newUser.getEmail(),newUser.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return jwtUtils.generateToken(UserDetailsImpl.build(newUser));

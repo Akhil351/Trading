@@ -1,10 +1,16 @@
 package com.akhil.trading.exception;
 
 import com.akhil.trading.response.Response;
+import com.razorpay.RazorpayException;
+import com.stripe.exception.StripeException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -48,5 +54,18 @@ public class GlobalException {
                         .status("Failed")
                         .error("External API call failed: " + exception.getMessage())
                         .build());
+    }
+
+    @ExceptionHandler(PaymentProcessingException.class)
+    public ResponseEntity<Response> handleRazorpayException(PaymentProcessingException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().status("Failed").error("Razorpay Error: " + ex.getMessage()).build());
+    }
+
+    @ExceptionHandler(StripeException.class)
+    public ResponseEntity<Response> handleStripeException(StripeException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Payment processing failed");
+        errorResponse.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.builder().status("Failed").error(errorResponse).build());
     }
 }

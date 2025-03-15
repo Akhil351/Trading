@@ -15,7 +15,7 @@ public class Asset {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double quantity;
+    private BigDecimal quantity;
     private BigDecimal buyPrice;
 
     private String coinId;

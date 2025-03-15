@@ -10,6 +10,7 @@ import java.util.Collection;
 @Data
 public class UserContext {
     private Long id;
+    private String fullName;
     private String email;
     private Collection<? extends GrantedAuthority> authorities;
 }

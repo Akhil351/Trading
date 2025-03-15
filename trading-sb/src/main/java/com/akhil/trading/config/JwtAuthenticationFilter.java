@@ -51,6 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private void setContext(UserDetailsImpl userDetails){
       userContext.setId(userDetails.getId());
+      userContext.setFullName(userDetails.getFullName());
       userContext.setEmail(userDetails.getUsername());
       userContext.setAuthorities(userDetails.getAuthorities());
     }
